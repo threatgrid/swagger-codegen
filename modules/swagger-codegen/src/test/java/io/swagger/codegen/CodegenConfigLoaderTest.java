@@ -41,6 +41,12 @@ public class CodegenConfigLoaderTest {
     @Test(dataProvider = "codegenConfig")
     public void testLoadByName(CodegenConfig codegenConfig) throws Exception {
         final CodegenConfig loadedConfig = CodegenConfigLoader.forName(codegenConfig.getName());
+        System.exit(1);
+          System.out.println("###############################################################################################");
+          System.out.println("###############################################################################################");
+          System.out.println(">>>>>>>>>>>>>>>>>> config: " + loadedConfig);
+          System.out.println("###############################################################################################");
+          System.out.println("###############################################################################################");
 
         assertEquals(loadedConfig.getClass(), codegenConfig.getClass());
         assertEquals(loadedConfig.getName(), codegenConfig.getName());

@@ -1,0 +1,34 @@
+{{=< >=}}(ns <&baseNamespace>.core
+  (:require [clojure.string :as str]
+            [iroh-ui.lib.collection :as collection]
+            [iroh-ui.lib.error :as error]
+            [iroh-ui.lib.http :as http]))
+
+(defmacro check-required-params
+  "Throw exception if any of the given parameters is nil."
+  [& params]
+  (->> params
+       (map (fn [p]
+              `(if (nil? ~p)
+                 (error/fail ~(str "The parameter \"" p "\" is required")))))
+       (list* 'do)))
+
+(defn with-collection-format
+  "Attach collection-format to metadata of the given parameter."
+  [param collection-format]
+  (and param (with-meta param {:collection-format collection-format})))
+
+(defn make-url [path path-params]
+  (reduce (fn [p [k v]]
+            (str/replace p (re-pattern (str "\\{" k "\\}")) v))
+          path
+          path-params))
+
+(defn call-api
+  "Call an API by making an HTTP request."
+  [path method {:keys [path-params query-params]}]
+  (-> (http/url {} (make-url path path-params))
+      http/json
+      (assoc :method method)
+      (assoc-in [:options :params] (collection/select-vals identity query-params))
+      http/exec-action))
